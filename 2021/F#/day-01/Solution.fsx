@@ -21,9 +21,9 @@ let input =
 //Part 1
 let partOneAnswer = input |> numberIncreased
 
-printfn "%i" partOneAnswer
+printfn "Day 1 - Part 1 Answer is %i" partOneAnswer
 
 //Part 2
 let partTwoAnswer = input |> slidingScale |> numberIncreased
 
-printfn "%i" partTwoAnswer
+printfn "Day 1 - Part 2 Answer is %i" partTwoAnswer

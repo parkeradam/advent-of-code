@@ -67,13 +67,13 @@ void main(List<String> arguments) {
   ];
 
   var sampleResult = getPosition(sampleInput);
-  print(sampleResult);
+  print("Test 1 : result from sample is as expected with no aim $sampleResult");
 
   //Part 1
   var values = readInput("./input.txt");
   var result = getPosition(values);
-  print("result 1 = ${result.multiply()}");
+  print("Day 2 - Part 1 Answer is ${result.multiply()}");
   //Part 2
   var resultTwo = getPositionTwo(values);
-  print("result 2 = ${resultTwo.multiply()}");
+  print("Day 2 - Part 2 Answer is ${resultTwo.multiply()}");
 }

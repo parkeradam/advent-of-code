@@ -16,7 +16,7 @@ let sampleInput =
 
 let result = numberIncreased sampleInput
 
-printfn "result = 7 : %b" (result = 7)
+printfn "Test 1 : given sample input, result = 7 : %b" (result = 7)
 
 
 let slidingScaleNums =
@@ -31,4 +31,4 @@ let slidingScaleNums =
 
 let scaledNums = sampleInput |> slidingScale
 
-printfn "result = %O" scaledNums
+printfn "Test 2 : Sliding scale based on example = %O" scaledNums

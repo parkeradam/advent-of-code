@@ -11,7 +11,7 @@ let sampleInput =
 
 let result = getPositionPartOne sampleInput
 
-printfn "result = expected : %b" (result = { Horizontal = 15; Depth = 10; Aim = 0 })
+printfn "Test 1 : result from sample is as expected with no aim: %b" (result = { Horizontal = 15; Depth = 10; Aim = 0 })
 
 let result2 = getPositionPartTwo sampleInput
-printfn "result2 = expected : %b" ((result2.Depth * result2.Horizontal) = 900)
+printfn "Test 2 : result from sample is as expected with aim %b" ((result2.Depth * result2.Horizontal) = 900)

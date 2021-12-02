@@ -10,11 +10,11 @@ let readInput filePath =
 let result =
     readInput "./input.txt" |> getPositionPartOne
 
-printfn "%i" (result.Depth * result.Horizontal)
+printfn "Day 2 - Part 1 Answer is %i" (result.Depth * result.Horizontal)
 
 
 //part 2 answer
 let result2 =
     readInput "./input.txt" |> getPositionPartTwo
 
-printfn "%i" (result2.Depth * result2.Horizontal)
+printfn "Day 2 - Part 2 Answer is %i" (result2.Depth * result2.Horizontal)

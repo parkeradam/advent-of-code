@@ -35,18 +35,18 @@ void main(List<String> arguments) {
   var sampleInput = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
 
   print(
-      "Sample result is ${measurementsIncreasesCount(sampleInput)} which should equal 7");
+      "Test 1 : given sample input, result = 7 ${measurementsIncreasesCount(sampleInput) == 7}");
 
   print(
-      "Window values are ${windowedSums(sampleInput, 3)} which should be [607,618,618,617,647,716,769,792]");
+      "Test 2 : Sliding scale based on example ${windowedSums(sampleInput, 3)}");
 
   var values = readInput("./input.txt").map(int.parse).toList();
   //part 1
   var result = measurementsIncreasesCount(values);
-  print(result);
+  print("Day 1 - Part 1 Answer is $result");
 
   //part 2
   var windowedVals = windowedSums(values, 3);
   var result2 = measurementsIncreasesCount(windowedVals);
-  print(result2);
+  print("Day 1 - Part 2 Answer is $result2");
 }
