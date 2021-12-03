@@ -1,9 +1,11 @@
 open System
 
-let binaryToInt str = Convert.ToInt32(str, 2)
-
 let toString (input: char list) =
     System.String.Concat(Array.ofList (input))
+
+let binaryToInt str = Convert.ToInt32(str, 2)
+let binaryArrToInt = toString >> binaryToInt
+let countBy predicate = (List.filter predicate) >> List.length
 
 let getReportNumbers (input: string list) =
 
@@ -12,46 +14,30 @@ let getReportNumbers (input: string list) =
     let rec loop acc index predicate =
 
         if index >= length then
-            acc |> List.rev |> toString |> binaryToInt
+            acc |> List.rev |> binaryArrToInt
         else
             let mapped = input |> List.map (fun x -> x.[index])
-
-            let numZeroes =
-                mapped
-                |> List.filter (fun c -> c = '0')
-                |> List.length
-
-            let numOnes =
-                mapped
-                |> List.filter (fun c -> c = '1')
-                |> List.length
+            let numZeroes = mapped |> countBy (fun c -> c = '0')
+            let numOnes = mapped |> countBy (fun c -> c = '1')
 
             let bitToAdd = predicate numZeroes numOnes
             loop (bitToAdd :: acc) (index + 1) predicate
 
-
-    let leastRelevent numZeroes numOnes =
+    let bitChooser trueBit falseBit numZeroes numOnes =
         match numZeroes = numOnes with
-        | true -> '0'
+        | true -> trueBit
         | false ->
             match numZeroes < numOnes with
-            | true -> '0'
-            | false -> '1'
+            | true -> trueBit
+            | false -> falseBit
 
-    let mostRelevent numZeroes numOnes =
-        match numZeroes = numOnes with
-        | true -> '1'
-        | false ->
-            match numZeroes < numOnes with
-            | true -> '1'
-            | false -> '0'
+    let leastRelevent = bitChooser '0' '1'
+    let mostRelevent = bitChooser '1' '0'
 
     let gamma = loop [] 0 mostRelevent
-
     let epsilon = loop [] 0 leastRelevent
 
     gamma * epsilon
-
 
 
 let getLifeSupportNumbers (input: string list) =
@@ -61,13 +47,11 @@ let getLifeSupportNumbers (input: string list) =
         | _ ->
             let numberZeroes =
                 remainingList
-                |> List.filter (fun x -> x.[index] = '0')
-                |> List.length
+                |> countBy (fun x -> x.[index] = '0')
 
             let numberOnes =
                 remainingList
-                |> List.filter (fun x -> x.[index] = '1')
-                |> List.length
+                |> countBy (fun x -> x.[index] = '1')
 
             let bitToFilterBy =
                 match numberZeroes = numberOnes with
