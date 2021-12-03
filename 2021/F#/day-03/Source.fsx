@@ -5,63 +5,52 @@ let binaryToInt str = Convert.ToInt32(str, 2)
 let toString (input: char list) =
     System.String.Concat(Array.ofList (input))
 
-let pivotList (lists: char list list) =
-    lists
-    |> List.map (fun item ->
-        item
-        |> List.mapi (fun index _ -> lists |> List.map (fun x -> x.[index])))
-    |> List.head
-
-
-type DiagnosticReportBit =
-    { GammaRateBit: char
-      EpisilonRateBit: char }
-
-let toDiagnosticReportBit (input: char list) =
-
-    let numZeroes =
-        input
-        |> List.filter (fun x -> x = '0')
-        |> List.length
-
-    let numOnes =
-        input
-        |> List.filter (fun x -> x = '1')
-        |> List.length
-
-    match numZeroes < numOnes with
-    | true ->
-        { GammaRateBit = '1'
-          EpisilonRateBit = '0' }
-    | false ->
-        { GammaRateBit = '0'
-          EpisilonRateBit = '1' }
-
 let getReportNumbers (input: string list) =
-    let diagnosticBits =
-        input
-        |> List.map (fun x -> x.ToCharArray())
-        |> List.map Array.toList
-        |> pivotList
-        |> List.map toDiagnosticReportBit
 
-    let episilonBits =
-        diagnosticBits
-        |> List.fold (fun state item -> item.EpisilonRateBit :: state) []
-        |> List.rev
+    let length = input.Head.Length
 
-    let gammaBits =
-        diagnosticBits
-        |> List.fold (fun state item -> item.GammaRateBit :: state) []
-        |> List.rev
+    let rec loop acc index predicate =
 
-    let epsilonNumber =
-        Convert.ToInt32(episilonBits |> toString, 2)
+        if index >= length then
+            acc |> List.rev |> toString |> binaryToInt
+        else
+            let mapped = input |> List.map (fun x -> x.[index])
 
-    let gammaNumber =
-        Convert.ToInt32(gammaBits |> toString, 2)
+            let numZeroes =
+                mapped
+                |> List.filter (fun c -> c = '0')
+                |> List.length
 
-    epsilonNumber * gammaNumber
+            let numOnes =
+                mapped
+                |> List.filter (fun c -> c = '1')
+                |> List.length
+
+            let bitToAdd = predicate numZeroes numOnes
+            loop (bitToAdd :: acc) (index + 1) predicate
+
+
+    let leastRelevent numZeroes numOnes =
+        match numZeroes = numOnes with
+        | true -> '0'
+        | false ->
+            match numZeroes < numOnes with
+            | true -> '0'
+            | false -> '1'
+
+    let mostRelevent numZeroes numOnes =
+        match numZeroes = numOnes with
+        | true -> '1'
+        | false ->
+            match numZeroes < numOnes with
+            | true -> '1'
+            | false -> '0'
+
+    let gamma = loop [] 0 mostRelevent
+
+    let epsilon = loop [] 0 leastRelevent
+
+    gamma * epsilon
 
 
 

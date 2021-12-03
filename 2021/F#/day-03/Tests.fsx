@@ -17,8 +17,8 @@ let sampleInput =
 
 let sampleResult1 = getReportNumbers sampleInput
 
-//printf "Test 1: Given sample input Diagnostic Report output should be 198 : %i" sampleResult1
+printfn "Test 1: Given sample input Diagnostic Report output should be 198 : %i" sampleResult1
 
 let sampleResult2 = getLifeSupportNumbers sampleInput
 
-printf "Test 2: Given sample input Life Support output should be 230 : %i" sampleResult2
+//printfn "Test 2: Given sample input Life Support output should be 230 : %i" sampleResult2
