@@ -19,15 +19,15 @@ let bingoCardFromList (arr: string list) =
 let updateBingoCard num (card: BingoCard) =
     let rows =
         card.Rows
-        |> List.map (fun x ->
-            x
-            |> List.map (fun c ->
+        |> List.map (
+            List.map (fun c ->
                 match c with
-                | Called -> Called
+                | Called -> c
                 | Uncalled (value) ->
                     match value = num with
                     | true -> Called
-                    | false -> c))
+                    | false -> c)
+        )
 
     { Rows = rows }
 
@@ -65,22 +65,19 @@ let checkRowWin (card: BingoCard) =
 
     count > 0
 
-
 let winnerWinner card =
     checkRowWin card || checkCollumnWin card
 
 let loserLoser card = not (winnerWinner card)
 
-let totalUncalled (list: CardNumber list list) =
-    list
-    |> List.concat
-    |> List.map (function
+let totalUncalled =
+    List.concat
+    >> List.map (function
         | Uncalled (value) -> value
         | Called -> 0)
-    |> List.reduce (+)
+    >> List.reduce (+)
 
-let getWinnersNumber (input: string list) =
-
+let getOrderedWinners (input: string list) =
     let bingoNumbers =
         input.Head
         |> (fun x -> x.Split(','))
@@ -89,73 +86,39 @@ let getWinnersNumber (input: string list) =
 
     let rec makeCards acc remainingList =
         match (remainingList |> List.length < 5) with
-        | true -> acc |> List.rev
+        | true -> acc
         | false ->
             match remainingList with
-            | [] -> acc |> List.rev
+            | [] -> acc
             | _ ->
                 let card =
                     remainingList |> List.take 5 |> bingoCardFromList
 
-                makeCards (card :: acc) (remainingList |> List.skip (6))
+                makeCards (acc @ [ card ]) (remainingList |> List.skip (6))
 
     let cards =
         input.Tail |> List.skip 1 |> makeCards []
 
-    let rec getWinners numbers cards =
+    let rec getWinners acc numbers cards =
         match numbers with
         | head :: tail ->
             let newCards = cards |> List.map (updateBingoCard head)
             let winners = newCards |> List.filter winnerWinner
+            let newWinners = winners |> List.map (fun x -> (head, x))
+            getWinners (acc @ newWinners) tail (newCards |> List.filter loserLoser)
+        | [] -> acc
 
-            if winners.Length > 0 then
-                (head, winners.Head)
-            else
-                getWinners tail newCards
-        | _ -> raise (new Exception("NO WINNERS!!!!"))
+    getWinners [] bingoNumbers cards
 
-    let winners = getWinners bingoNumbers cards
-    let winner = snd winners
-    (fst winners) * (totalUncalled winner.Rows)
 
+let getWinnersNumber (input: string list) =
+    let firstWinner = (getOrderedWinners input) |> List.head
+    let winner = snd firstWinner
+    (fst firstWinner) * (totalUncalled winner.Rows)
 
 let getLastWinnersNumbers (input: string list) =
-    let bingoNumbers =
-        input.Head
-        |> (fun x -> x.Split(','))
-        |> Array.map Int32.Parse
-        |> Array.toList
+    let lastWinner =
+        (getOrderedWinners input) |> List.rev |> List.head
 
-    let rec makeCards acc remainingList =
-        match (remainingList |> List.length < 5) with
-        | true -> acc |> List.rev
-        | false ->
-            match remainingList with
-            | [] -> acc |> List.rev
-            | _ ->
-                let card =
-                    remainingList |> List.take 5 |> bingoCardFromList
-
-                makeCards (card :: acc) (remainingList |> List.skip (6))
-
-    let cards =
-        input.Tail |> List.skip 1 |> makeCards []
-
-    let rec getLastWinner numbers cards =
-        match numbers with
-        | head :: tail ->
-            let newCards =
-                cards
-                |> List.map (updateBingoCard head)
-                |> List.filter loserLoser
-
-            if newCards.Length = 0 then
-                let lastWinner = updateBingoCard head cards.Head
-                (head, lastWinner)
-            else
-                getLastWinner tail newCards
-        | _ -> raise (new Exception("NO WINNERS!!!!"))
-
-    let winners = getLastWinner bingoNumbers cards
-    let winner = snd winners
-    (fst winners) * (totalUncalled winner.Rows)
+    let winner = snd lastWinner
+    (fst lastWinner) * (totalUncalled winner.Rows)
