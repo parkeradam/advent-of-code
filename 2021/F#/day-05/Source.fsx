@@ -19,11 +19,6 @@ let genList first second =
     | true -> [ first .. 1 .. second ]
     | false -> [ first .. -1 .. second ]
 
-let lowestXandY a b =
-    let lowestX = if a.X < b.X then a.X else b.X
-    let lowestY = if a.Y < b.Y then a.Y else b.Y
-    (lowestX, lowestY)
-
 let generatePoints line =
     let firstPoint = line.Start
     let secondPoint = line.End
