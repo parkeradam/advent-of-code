@@ -1,15 +1,18 @@
 open System
 
-type Point =
-    { X: int
-      Y: int }
-    static member create a b = { X = int a; Y = int b }
+type Point = { X: int; Y: int }
 
-let isHorizontal (pair: Point * Point) = (fst pair).Y = (snd pair).Y
-let isVertical (pair: Point * Point) = (fst pair).X = (snd pair).X
+type Line = { Start: Point; End: Point }
 
-let isHorizontalOrVertical (pair: Point * Point) =
-    (isHorizontal pair) || (isVertical pair)
+let listToLine (lst: string list) =
+    { Start = { X = int lst.[0]; Y = int lst.[1] }
+      End = { X = int lst.[2]; Y = int lst.[3] } }
+
+let isHorizontal line = line.Start.Y = line.End.Y
+let isVertical line = line.Start.X = line.End.X
+
+let isHorizontalOrVertical line =
+    (isHorizontal line) || (isVertical line)
 
 let genList first second =
     match (first < second) with
@@ -21,14 +24,14 @@ let lowestXandY a b =
     let lowestY = if a.Y < b.Y then a.Y else b.Y
     (lowestX, lowestY)
 
-let generatePoints (points: Point * Point) =
-    let firstPoint = fst points
-    let secondPoint = snd points
+let generatePoints line =
+    let firstPoint = line.Start
+    let secondPoint = line.End
 
-    if isVertical points then
+    if isVertical line then
         genList firstPoint.Y secondPoint.Y
         |> List.map (fun y -> { X = firstPoint.X; Y = y })
-    else if isHorizontal points then
+    else if isHorizontal line then
         genList firstPoint.X secondPoint.X
         |> List.map (fun x -> { X = x; Y = firstPoint.Y })
     else
@@ -45,7 +48,7 @@ let getOverlappigLines lineFilter (input: string list) =
     |> List.map (fun x ->
         x.Split(seperators, StringSplitOptions.None)
         |> Seq.toList)
-    |> List.map (fun x -> (Point.create x.[0] x.[1], Point.create x.[2] x.[3]))
+    |> List.map listToLine
     |> List.filter lineFilter
     |> List.map generatePoints
     |> List.concat
