@@ -12,5 +12,5 @@ let input =
 let result1 = countFish input 80
 printfn "Day 6 - Part 1 : Result is %i" result1
 
-let result2 = countFish input 256
+let result2 = countFish2 input 256
 printfn "Day 6 - Part 2 : Result is %i" result2

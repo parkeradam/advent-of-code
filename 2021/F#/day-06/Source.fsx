@@ -47,7 +47,7 @@ let countFish2 (input: int list) numDays =
 
 
     let rec loop index =
-        if index > numDays then
+        if index >= numDays then
             ()
         else
             [ 8 .. -1 .. 0 ]
@@ -63,8 +63,6 @@ let countFish2 (input: int list) numDays =
                 printfn "Key = %i : Value = %i" value.Key value.Value
 
             printfn "End of dict"
-
-
 
             loop (index + 1)
 
