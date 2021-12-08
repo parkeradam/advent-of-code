@@ -1,3 +1,9 @@
+let print = printfn "%s"
+
+let printAndPass prefix x =
+    printfn "%s = %A" prefix x
+    x
+
 let chekUniqueDigits (input: string list) =
 
     let countByLength number (input: string array) =
