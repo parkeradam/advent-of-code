@@ -6,7 +6,6 @@ open System
 let processLine (input: string) =
     let rec loop (acc: char list) index =
         if (index >= input.Length) then
-            printfn "FINAL ACC : %A" acc
             Left(acc)
         else
             let char = input.[index]
@@ -75,11 +74,7 @@ let calculateAutoCompleteScore (input: string list) =
         charList
         |> List.map charToScore
         |> List.map uint64
-        |> List.fold
-            (fun acc elem ->
-                printfn "%i" acc
-                (acc * uint64 5) + elem)
-            (uint64 0)
+        |> List.fold (fun acc elem -> (acc * uint64 5) + elem) (uint64 0)
 
     let allScores =
         input
