@@ -31,20 +31,24 @@ let getLines (input: string array) =
            { From = cavePoints.[1]
              To = cavePoints.[0] } |])
     |> Array.concat
-//|> printAndPass
 
-let calculatePaths (input: string array) =
+let calculatePaths (input: string array) (shouldAllowMoreThanOne: bool) =
     let lines = getLines input
 
-    let rec loop (current: CaveType) (visited: Set<CaveType>) : string array =
-        // printfn "visiting %A" current
-        // printfn "visited %A" visited
+    let rec loop (current: CaveType) (visited: Set<CaveType>) (canVisitOneNode: bool) : string array =
 
         let possibleRoutes =
             lines
             |> Array.filter (fun x -> x.From = current) // Get possible to routes
             |> Array.map (fun x -> x.To) // map to the to routes
-            |> Array.filter (fun x -> visited.Contains(x) |> not) // Filter if it hasnt been visited
+            |> Array.filter (fun x ->
+                let hasBeenVisited = (visited.Contains x) |> not
+                canVisitOneNode || hasBeenVisited)
+            |> Array.filter (fun x -> x = Small "start" |> not) // Filter if it hasnt been visited
+
+        let canRevisit =
+            canVisitOneNode
+            && (visited.Contains current |> not)
 
         if getStringFromCaveType current = "end" then
             [| "end" |]
@@ -52,15 +56,17 @@ let calculatePaths (input: string array) =
             match current with
             | Big (str) ->
                 possibleRoutes
-                |> Array.map (fun x -> loop x visited)
-                |> Array.collect (fun y -> y |> Array.map (fun z -> str + z))
+                |> Array.map (fun x -> loop x visited canRevisit)
+                |> Array.collect (fun y -> y |> Array.map (fun z -> str + "," + z))
             | Small (str) ->
                 let newSet = visited.Add current
 
                 possibleRoutes
-                |> Array.map (fun x -> loop x newSet)
-                |> Array.collect (fun y -> y |> Array.map (fun z -> str + z))
+                |> Array.map (fun x -> loop x newSet canRevisit)
+                |> Array.collect (fun y -> y |> Array.map (fun z -> str + "," + z))
 
-    loop (Small "start") Set.empty
+    loop (Small "start") Set.empty shouldAllowMoreThanOne
     |> Array.filter (fun x -> x.StartsWith("start") && x.EndsWith("end"))
+    |> Array.distinct
+    //|> printAndPass
     |> Array.length
