@@ -68,5 +68,5 @@ let calculatePaths (input: string array) (shouldAllowMoreThanOne: bool) =
     loop (Small "start") Set.empty shouldAllowMoreThanOne
     |> Array.filter (fun x -> x.StartsWith("start") && x.EndsWith("end"))
     |> Array.distinct
-    //|> printAndPass
+    |> printAndPass
     |> Array.length
