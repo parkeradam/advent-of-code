@@ -1,0 +1,135 @@
+open System
+open System
+open System.Collections.Generic
+
+let goInsne () =
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+    printfn
+        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
+
+let printAndPass x =
+    printfn "%A" x
+    x
+
+type Position = { X: int; Y: int; Risk: int }
+
+let memoize fn =
+    let cache =
+        new System.Collections.Generic.Dictionary<_, _>()
+
+    (fun x ->
+        match cache.TryGetValue x with
+        | true, v -> v
+        | false, _ ->
+            let v = fn (x)
+            cache.Add(x, v)
+            v)
+
+let private parseInput =
+    Array.mapi (fun xIndex x ->
+        x
+        |> Seq.mapi (fun yIndex y ->
+            { X = xIndex
+              Y = yIndex
+              Risk = Int32.Parse(y.ToString()) })
+        |> Seq.toArray)
+    >> Array.concat
+
+let private getNeighbours (arr: Position array) (pos: Position) =
+
+    let tryFind posX posY =
+        arr
+        |> Array.tryFind (fun x -> x.X = posX && x.Y = posY)
+
+    [ tryFind (pos.X - 1) pos.Y //left
+      tryFind (pos.X + 1) pos.Y //right
+      tryFind pos.X (pos.Y - 1) //up
+      tryFind pos.X (pos.Y + 1) ] // down
+    |> List.choose id
+
+
+let calculateRisk (input: string array) =
+
+    let shortest = new Dictionary<int, int>()
+
+    [ 0 .. 1000 ]
+    |> List.map (fun x -> shortest.Add(x, Int32.MaxValue))
+    |> ignore
+
+    let positions = parseInput input
+    let findNeighbours = memoize getNeighbours positions
+
+    let rec loop (visited: Set<Position>) (current: Position) : Position list list =
+        let neighbours = findNeighbours current
+        let visitedLength = visited |> Set.toList |> List.length
+
+        printfn "Visited length = %i" visitedLength
+
+        let visitedSize =
+            if not (visited |> Set.isEmpty) then
+                visited
+                |> Set.map (fun x -> x.Risk)
+                |> Set.toList
+                |> List.reduce (+)
+            else
+                0
+
+        let isLonger = shortest.[visitedLength] < visitedSize
+
+        if isLonger then
+            [ [ current ] ]
+        else
+            let usableNeighbours =
+                neighbours
+                |> List.filter (fun x -> (visited.Contains x) |> not)
+
+            let newSet = visited |> Set.add current
+
+            if usableNeighbours |> List.length = 0 then
+                [ [ current ] ]
+            else
+                usableNeighbours
+                |> List.map (fun x -> memoize loop newSet x)
+                |> List.map (memoize (fun lst -> lst |> List.map (fun z -> [ current ] @ z)))
+                |> List.concat
+
+
+    let topLeft =
+        positions
+        |> Array.find (fun x -> x.X = 0 && x.Y = 0)
+
+    let output = loop Set.empty topLeft
+    printfn "%A" output
+    1

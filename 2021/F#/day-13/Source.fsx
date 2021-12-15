@@ -57,7 +57,7 @@ let getHolesAsString (points: Point list) =
 
     results
 
-let printHoles (points: Point list) =
+let private printHoles (points: Point list) =
     getHolesAsString points |> List.map (printfn "%s")
 
 let getRemainingHoles (input: string list) (numFolds: int option) =
