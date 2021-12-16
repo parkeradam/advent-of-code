@@ -1,61 +1,7 @@
 open System
-open System
 open System.Collections.Generic
 
-let goInsne () =
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-    printfn
-        "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////"
-
-let printAndPass x =
-    printfn "%A" x
-    x
-
 type Position = { X: int; Y: int; Risk: int }
-
-let memoize fn =
-    let cache =
-        new System.Collections.Generic.Dictionary<_, _>()
-
-    (fun x ->
-        match cache.TryGetValue x with
-        | true, v -> v
-        | false, _ ->
-            let v = fn (x)
-            cache.Add(x, v)
-            v)
 
 let private parseInput =
     Array.mapi (fun xIndex x ->
@@ -67,11 +13,11 @@ let private parseInput =
         |> Seq.toArray)
     >> Array.concat
 
-let private getNeighbours (arr: Position array) (pos: Position) =
+let private getNeighbours (lst: Position list) (pos: Position) =
 
     let tryFind posX posY =
-        arr
-        |> Array.tryFind (fun x -> x.X = posX && x.Y = posY)
+        lst
+        |> List.tryFind (fun x -> x.X = posX && x.Y = posY)
 
     [ tryFind (pos.X - 1) pos.Y //left
       tryFind (pos.X + 1) pos.Y //right
@@ -82,54 +28,61 @@ let private getNeighbours (arr: Position array) (pos: Position) =
 
 let calculateRisk (input: string array) =
 
-    let shortest = new Dictionary<int, int>()
+    let shortest = new Dictionary<Position, int>()
+    let positions = parseInput input |> Array.toList
 
-    [ 0 .. 1000 ]
-    |> List.map (fun x -> shortest.Add(x, Int32.MaxValue))
-    |> ignore
-
-    let positions = parseInput input
-    let findNeighbours = memoize getNeighbours positions
-
-    let rec loop (visited: Set<Position>) (current: Position) : Position list list =
-        let neighbours = findNeighbours current
-        let visitedLength = visited |> Set.toList |> List.length
-
-        printfn "Visited length = %i" visitedLength
-
-        let visitedSize =
-            if not (visited |> Set.isEmpty) then
-                visited
-                |> Set.map (fun x -> x.Risk)
-                |> Set.toList
-                |> List.reduce (+)
-            else
-                0
-
-        let isLonger = shortest.[visitedLength] < visitedSize
-
-        if isLonger then
-            [ [ current ] ]
-        else
-            let usableNeighbours =
-                neighbours
-                |> List.filter (fun x -> (visited.Contains x) |> not)
-
-            let newSet = visited |> Set.add current
-
-            if usableNeighbours |> List.length = 0 then
-                [ [ current ] ]
-            else
-                usableNeighbours
-                |> List.map (fun x -> memoize loop newSet x)
-                |> List.map (memoize (fun lst -> lst |> List.map (fun z -> [ current ] @ z)))
-                |> List.concat
-
+    positions
+    |> List.iter (fun x -> shortest.Add(x, Int32.MaxValue))
 
     let topLeft =
         positions
-        |> Array.find (fun x -> x.X = 0 && x.Y = 0)
+        |> List.find (fun x -> x.X = 0 && x.Y = 0)
 
-    let output = loop Set.empty topLeft
-    printfn "%A" output
-    1
+    shortest.[topLeft] <- 0
+
+    let mutable visited = List.empty<Position>
+    let mutable toVisit = List.singleton topLeft
+    let findNeighbours = getNeighbours positions
+
+    while visited.Length <> positions.Length do
+        let current =
+            toVisit
+            |> List.filter (fun x -> (List.contains x visited) |> not)
+            |> List.sortByDescending (fun x -> shortest.[x])
+            |> List.head
+
+        printfn "Shortest = %A" shortest
+
+        printfn "Using Node  %A" current
+        let neighbours = findNeighbours current
+
+        for neighbour in neighbours do
+            let neighbourDist = shortest.[current] + neighbour.Risk
+
+            if (shortest.[neighbour] > neighbourDist) then
+                shortest.[neighbour] <- neighbourDist
+
+        toVisit <-
+            (toVisit @ neighbours)
+            |> List.filter (fun x -> x <> current)
+
+        visited <- current :: visited
+
+    let maxX =
+        positions
+        |> List.sortByDescending (fun x -> x.X)
+        |> List.head
+        |> (fun x -> x.X)
+
+    let maxY =
+        positions
+        |> List.sortByDescending (fun x -> x.Y)
+        |> List.head
+        |> (fun x -> x.Y)
+
+    let bottomRight =
+        positions
+        |> List.find (fun x -> x.X = maxX && x.Y = maxY)
+
+    shortest.[bottomRight]
+//    1
