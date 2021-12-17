@@ -60,7 +60,7 @@ let private calculatePaths (target: Target) =
 
     [ 0 .. target.maxX ]
     |> List.collect (fun x ->
-        [ 0 .. (-(target.minY * 2)) ]
+        [ target.minY .. (-(target.minY * 2)) ]
         |> List.map (fun y -> getPath target (x, y) position))
 
 let calculateHeight (input: string) =
@@ -72,3 +72,11 @@ let calculateHeight (input: string) =
     |> List.concat
     |> List.maxBy snd
     |> snd
+
+let calculateNumAllPaths (input: string) =
+    let target = targetFromInput input
+    let allPaths = calculatePaths target
+
+    allPaths
+    |> List.filter (fun path -> pathCrossesTarget target path)
+    |> List.length
